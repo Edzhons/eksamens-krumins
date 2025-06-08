@@ -142,6 +142,15 @@ public class App {
         double totalTimeSeconds = totalTimeMillis / 1000.0;
 
         showMistakes(results, score, questions.size(), totalTimeSeconds);
+
+        // Jautā, vai atkārtot spēli
+        int restart = JOptionPane.showConfirmDialog(null, "Vai vēlies sākt spēli no jauna?", "Restartēt?", JOptionPane.YES_NO_OPTION);
+
+        if (restart == JOptionPane.YES_OPTION) {
+            startQuiz();  // Restartē spēli
+        } else {
+            showMainMenu();  // Atgriežas uz main menu
+        }
     }
 
     public static boolean[] askQuestion(Question q) {
