@@ -4,9 +4,22 @@ import java.util.Collections;
 import java.util.List;
 import javax.swing.*;
 
+class Question {
+    public String questionText;
+    public String[] answers;
+    public boolean[] correctAnswers;
+
+    public Question(String questionText, String[] answers, boolean[] correctAnswers) {
+        this.questionText = questionText;
+        this.answers = answers;
+        this.correctAnswers = correctAnswers;
+    }
+}
+
 public class App {
 
-    // Saglabā jautājumu un atbilžu struktūru no lietotāja
+    // Saglabā katru jautājuma rezultātu - jautājums un lietotāja atbilde
+    // Vajadzīgs, lai vēlāk varētu parādīt nepareizās atbildes un to labojumus
     static class QuizResult {
         Question question;
         boolean[] userAnswers;
@@ -48,7 +61,7 @@ public class App {
     }
 
     public static void showInfo() {
-        String rules = "📜 INFO:\n"
+        String info = "📜 INFO:\n"
                      + "1. Tests sastāv no 10 jautājumiem.\n"
                      + "2. Katram jautājumam ir 4 atbilžu varianti, no kuriem pareizi ir 2-3.\n"
                      + "3. Uz jautājumiem jāatbild pēc kārtas, tos nedrīkst izlaist.\n"
@@ -56,10 +69,11 @@ public class App {
                      + "5. Spēles beigās tiks parādīts rezultāts un atbildes uz nepareizi atbildētajiem jautājumiem.\n"
                      + "6. Jautājumi, pildot testu, katru reizi tiek parādīti citā secībā.\n"
                      + "7. Spiežot uz pogas <Nav ne jausmas>, programma automātiski izvēlēsies 2-3 atbildes, randomā.\n";
-        JOptionPane.showMessageDialog(null, rules, "Par spēli", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, info, "Par spēli", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void startQuiz() {
+        // Sagatavo jautājumus un rezultātu glabāšanu
         List<Question> questions = new ArrayList<>();
         List<QuizResult> results = new ArrayList<>();
 
@@ -117,17 +131,17 @@ public class App {
             new boolean[]{true, false, true, true}
         ));
 
-        Collections.shuffle(questions);
+        Collections.shuffle(questions); // Lai katru reizi jautājumi būtu citā secībā
         int score = 0;
 
-        long startTime = System.currentTimeMillis(); // Laiks, kad sāk atbildēt uz jautājumiem
+        long startTime = System.currentTimeMillis(); // Saglabā sākuma laiku, lai vēlāk varētu aprēķināt, cik ilgi tika spēlēts
 
         for (int i = 0; i < questions.size(); i++) {
             Question q = questions.get(i);
             boolean[] userAnswers = askQuestion(q, i + 1, questions.size());
             
             if (userAnswers == null) {
-                // Lietotājs izvēlējās atcelt vai iziet
+                // Ja lietotājs atceļ jautājumu – atgriežas uz galveno izvēlni
                 return;
             }
 
@@ -187,22 +201,23 @@ public class App {
 
             boolean[] userSelections = new boolean[q.answers.length];
 
-            if (result == 1) { // "Nav ne jausmas"
+            if (result == 1) { // Ja izvēlas "Nav ne jausmas", izvēlas 2–3 atbildes randomā
                 List<Integer> indices = new ArrayList<>();
                 for (int i = 0; i < q.answers.length; i++) indices.add(i);
                 Collections.shuffle(indices);
-                int numToSelect = 2 + new java.util.Random().nextInt(2); // 2 or 3
+                int numToSelect = 2 + new java.util.Random().nextInt(2); // 2 vai 3
                 for (int i = 0; i < numToSelect; i++) {
                     checkboxes[indices.get(i)].setSelected(true);
                 }
             }
 
-            // Count selected answers
+            // Saskaita, cik atbildes ir atzīmētas
             int selectedCount = 0;
             for (JCheckBox cb : checkboxes) {
                 if (cb.isSelected()) selectedCount++;
             }
 
+            // Atļauj turpināt tikai tad, ja izvēlētas vismaz 2 atbildes
             if (selectedCount >= 2) {
                 for (int i = 0; i < checkboxes.length; i++) {
                     userSelections[i] = checkboxes[i].isSelected();
@@ -215,6 +230,7 @@ public class App {
     }
 
     public static void showMistakes(List<QuizResult> results, int score, int totalQuestions, String formattedTime) {
+        // Aprēķina rezultātu procentos un formatē rezultātu izvadi
         double percentageScore = ((double) score * 100) / totalQuestions;
         String formattedScore = String.format("%.2f", percentageScore);
 
@@ -225,6 +241,7 @@ public class App {
           .append("Tavas kļūdas:\n\n");
 
         for (QuizResult result : results) {
+            // Pievieno tikai tos jautājumus, kuros atbilde bija nepareiza
             if (!Arrays.equals(result.userAnswers, result.question.correctAnswers)) {
                 sb.append("❌ ").append(result.question.questionText).append("\n");
 
@@ -249,9 +266,9 @@ public class App {
         if (sb.toString().equals("Spēle pabeigta!\n"
                 + "Tavs rezultāts: " + score + "/" + totalQuestions
                 + " (" + formattedScore + "%)\n"
-                + "Kopējais laiks: " + formattedTime + " sekundes\n\n"
+                + "Kopējais laiks: " + formattedTime + "\n\n"
                 + "Tavas kļūdas:\n\n")) {
-            sb.append("🎉 Apsveicu! Viss atbildēts pareizi!");
+            sb.append("Apsveicu! Viss atbildēts pareizi!");
         }
 
         JTextArea textArea = new JTextArea(sb.toString());
@@ -263,6 +280,10 @@ public class App {
     }
 
     private static String formatTime(int totalSeconds) {
+        // No int sekundēs pārvērš par String HH:MM:SS
+        if (totalSeconds < 0) {
+            return "00:00:00"; // Ja laiks ir negatīvs, atgriežam 0
+        }
         int hours = totalSeconds / 3600;
         int minutes = (totalSeconds % 3600) / 60;
         int seconds = totalSeconds % 60;
