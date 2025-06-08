@@ -87,6 +87,7 @@ public class App {
         }
 
         JOptionPane.showMessageDialog(null, "Spēle pabeigta! Tavs rezultāts: " + score + "/" + questions.size());
+        showMistakes(results);
     }
 
     public static boolean[] askQuestion(Question q) {
@@ -110,6 +111,43 @@ public class App {
         }
 
         return userSelections;
+    }
+
+    public static void showMistakes(List<QuizResult> results) {
+        StringBuilder sb = new StringBuilder("Tavas kļūdas:\n\n");
+
+        for (QuizResult result : results) {
+            if (!Arrays.equals(result.userAnswers, result.question.correctAnswers)) {
+                sb.append("❌ ").append(result.question.questionText).append("\n");
+
+                for (int i = 0; i < result.question.answers.length; i++) {
+                    String answer = result.question.answers[i];
+                    boolean correct = result.question.correctAnswers[i];
+                    boolean userPicked = result.userAnswers[i];
+
+                    if (correct && userPicked) {
+                        sb.append("   ✅ Pareizi atzīmēts: ").append(answer).append("\n");
+                    } else if (correct) {
+                        sb.append("   ⚠️ Neatzīmēts, bet vajadzēja: ").append(answer).append("\n");
+                    } else if (userPicked) {
+                        sb.append("   ❌ Nepareizi atzīmēts: ").append(answer).append("\n");
+                    }
+                }
+
+                sb.append("\n");
+            }
+        }
+
+        if (sb.toString().equals("Tavas kļūdas:\n\n")) {
+            sb.append("🎉 Apsveicu! Viss atbildēts pareizi!");
+        }
+
+        JTextArea textArea = new JTextArea(sb.toString());
+        textArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
+
+        JOptionPane.showMessageDialog(null, scrollPane, "Pārbaudi savas atbildes", JOptionPane.INFORMATION_MESSAGE);
     }
 
 }
