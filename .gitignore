@@ -1,3 +1,14 @@
+# Java junk
 *.class
 *.jar
+*.log
+
+# VSCode & project files
 .vscode/
+bin/
+out/
+lib/
+
+# OS-specific
+.DS_Store
+Thumbs.db
