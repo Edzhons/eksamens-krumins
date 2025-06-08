@@ -4,6 +4,18 @@ import java.util.List;
 import javax.swing.*;
 
 public class App {
+
+    // Saglabā jautājumu un atbilžu struktūru no lietotāja
+    static class QuizResult {
+        Question question;
+        boolean[] userAnswers;
+
+        QuizResult(Question question, boolean[] userAnswers) {
+            this.question = question;
+            this.userAnswers = userAnswers;
+        }
+    }
+
     public static void main(String[] args) {
         showMainMenu();
     }
