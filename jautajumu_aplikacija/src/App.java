@@ -139,10 +139,11 @@ public class App {
         }
         
         long endTime = System.currentTimeMillis(); // Laiks, kad beidz atbildēt uz jautājumiem
-        long totalTimeMillis = endTime - startTime;
-        double totalTimeSeconds = totalTimeMillis / 1000.0;
+        double totalTimeSeconds = (endTime - startTime) / 1000.0;
+        int roundedSeconds = (int) Math.round(totalTimeSeconds);
+        String formattedTime = formatTime(roundedSeconds);
 
-        showMistakes(results, score, questions.size(), totalTimeSeconds);
+        showMistakes(results, score, questions.size(), formattedTime);
 
         // Jautā, vai atkārtot spēli
         int restart = JOptionPane.showConfirmDialog(null, "Vai vēlies sākt spēli no jauna?", "Restartēt?", JOptionPane.YES_NO_OPTION);
@@ -213,15 +214,14 @@ public class App {
         }
     }
 
-    public static void showMistakes(List<QuizResult> results, int score, int totalQuestions, double totalTimeSeconds) {
+    public static void showMistakes(List<QuizResult> results, int score, int totalQuestions, String formattedTime) {
         double percentageScore = ((double) score * 100) / totalQuestions;
         String formattedScore = String.format("%.2f", percentageScore);
-        String formattedTime = String.format("%.2f", totalTimeSeconds);
 
         StringBuilder sb = new StringBuilder("Spēle pabeigta!\n");
         sb.append("Tavs rezultāts: ").append(score).append("/").append(totalQuestions)
           .append(" (").append(formattedScore).append("%)\n")
-          .append("Kopējais laiks: ").append(formattedTime).append(" sekundes\n\n")
+          .append("Kopējais laiks: ").append(formattedTime).append("\n\n")
           .append("Tavas kļūdas:\n\n");
 
         for (QuizResult result : results) {
@@ -260,6 +260,13 @@ public class App {
         scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
 
         JOptionPane.showMessageDialog(null, scrollPane, "Pārbaudi savas atbildes", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private static String formatTime(int totalSeconds) {
+        int hours = totalSeconds / 3600;
+        int minutes = (totalSeconds % 3600) / 60;
+        int seconds = totalSeconds % 60;
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
 }
