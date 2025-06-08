@@ -120,11 +120,13 @@ public class App {
         Collections.shuffle(questions);
         int score = 0;
 
+        long startTime = System.currentTimeMillis(); // Laiks, kad sāk atbildēt uz jautājumiem
+
         for (Question q : questions) {
             boolean[] userAnswers = askQuestion(q);
             
             if (userAnswers == null) {
-                // User pressed cancel, restart game
+                // Lietotājs izvēlējās atcelt vai iziet
                 return;
             }
 
@@ -135,9 +137,11 @@ public class App {
             }
         }
         
-        double percentageScore = (score * 100) / questions.size();
-        JOptionPane.showMessageDialog(null, "Spēle pabeigta! Tavs rezultāts: " + score + "/" + questions.size() + " (" + percentageScore + "%)");
-        showMistakes(results);
+        long endTime = System.currentTimeMillis(); // Laiks, kad beidz atbildēt uz jautājumiem
+        long totalTimeMillis = endTime - startTime;
+        double totalTimeSeconds = totalTimeMillis / 1000.0;
+
+        showMistakes(results, score, questions.size(), totalTimeSeconds);
     }
 
     public static boolean[] askQuestion(Question q) {
@@ -198,8 +202,16 @@ public class App {
         }
     }
 
-    public static void showMistakes(List<QuizResult> results) {
-        StringBuilder sb = new StringBuilder("Tavas kļūdas:\n\n");
+    public static void showMistakes(List<QuizResult> results, int score, int totalQuestions, double totalTimeSeconds) {
+        double percentageScore = ((double) score * 100) / totalQuestions;
+        String formattedScore = String.format("%.2f", percentageScore);
+        String formattedTime = String.format("%.2f", totalTimeSeconds);
+
+        StringBuilder sb = new StringBuilder("Spēle pabeigta!\n");
+        sb.append("Tavs rezultāts: ").append(score).append("/").append(totalQuestions)
+          .append(" (").append(formattedScore).append("%)\n")
+          .append("Kopējais laiks: ").append(formattedTime).append(" sekundes\n\n")
+          .append("Tavas kļūdas:\n\n");
 
         for (QuizResult result : results) {
             if (!Arrays.equals(result.userAnswers, result.question.correctAnswers)) {
@@ -223,7 +235,11 @@ public class App {
             }
         }
 
-        if (sb.toString().equals("Tavas kļūdas:\n\n")) {
+        if (sb.toString().equals("Spēle pabeigta!\n"
+                + "Tavs rezultāts: " + score + "/" + totalQuestions
+                + " (" + formattedScore + "%)\n"
+                + "Kopējais laiks: " + formattedTime + " sekundes\n\n"
+                + "Tavas kļūdas:\n\n")) {
             sb.append("🎉 Apsveicu! Viss atbildēts pareizi!");
         }
 
