@@ -122,8 +122,9 @@ public class App {
 
         long startTime = System.currentTimeMillis(); // Laiks, kad sāk atbildēt uz jautājumiem
 
-        for (Question q : questions) {
-            boolean[] userAnswers = askQuestion(q);
+        for (int i = 0; i < questions.size(); i++) {
+            Question q = questions.get(i);
+            boolean[] userAnswers = askQuestion(q, i + 1, questions.size());
             
             if (userAnswers == null) {
                 // Lietotājs izvēlējās atcelt vai iziet
@@ -153,7 +154,7 @@ public class App {
         }
     }
 
-    public static boolean[] askQuestion(Question q) {
+    public static boolean[] askQuestion(Question q, int questionNumber, int totalQuestions){
         JCheckBox[] checkboxes = new JCheckBox[q.answers.length];
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -163,6 +164,7 @@ public class App {
             checkboxes[i] = new JCheckBox(q.answers[i]);
             panel.add(checkboxes[i]);
         }
+        panel.add(new JLabel("📊 Jautājums " + questionNumber + " no " + totalQuestions));
 
         String[] options = {"OK", "Nav ne jausmas", "Atcelt"};
 
