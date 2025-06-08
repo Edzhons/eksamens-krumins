@@ -54,7 +54,8 @@ public class App {
                      + "3. Uz jautājumiem jāatbild pēc kārtas, tos nedrīkst izlaist.\n"
                      + "4. Pēc jautājuma atbildēšanas nav zināms, vai atbildēts pareizi vai nepareizi.\n"
                      + "5. Spēles beigās tiks parādīts rezultāts un atbildes uz nepareizi atbildētajiem jautājumiem.\n"
-                     + "6. Jautājumi, pildot testu, katru reizi tiek parādīti citā secībā.\n";
+                     + "6. Jautājumi, pildot testu, katru reizi tiek parādīti citā secībā.\n"
+                     + "7. Spiežot uz pogas <Nav ne jausmas>, programma automātiski izvēlēsies 2-3 atbildes, randomā.\n";
         JOptionPane.showMessageDialog(null, rules, "Par spēli", JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -121,6 +122,12 @@ public class App {
 
         for (Question q : questions) {
             boolean[] userAnswers = askQuestion(q);
+            
+            if (userAnswers == null) {
+                // User pressed cancel, restart game
+                return;
+            }
+
             results.add(new QuizResult(q, userAnswers));
 
             if (Arrays.equals(userAnswers, q.correctAnswers)) {
@@ -135,40 +142,58 @@ public class App {
 
     public static boolean[] askQuestion(Question q) {
         JCheckBox[] checkboxes = new JCheckBox[q.answers.length];
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel("❓ " + q.questionText));
+
+        for (int i = 0; i < q.answers.length; i++) {
+            checkboxes[i] = new JCheckBox(q.answers[i]);
+            panel.add(checkboxes[i]);
+        }
+
+        String[] options = {"OK", "Nav ne jausmas", "Atcelt"};
 
         while (true) {
-            JPanel panel = new JPanel();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            panel.add(new JLabel("❓ " + q.questionText));
-
-            for (int i = 0; i < q.answers.length; i++) {
-                checkboxes[i] = new JCheckBox(q.answers[i]);
-                panel.add(checkboxes[i]);
-            }
-
-            int result = JOptionPane.showConfirmDialog(null, panel, "Jautājums", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+            int result = JOptionPane.showOptionDialog(
+                null,
+                panel,
+                "Jautājums",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]
+            );
 
             if (result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
-                // Atgriezties uz galveno izvēlni
-                showMainMenu(); // Restartē visu no sākuma
+                return null;  // Cancel => return to main menu
             }
 
-            // Saskaitīt, cik atzīmētas izvēles
-            int selectedCount = 0;
-            for (JCheckBox cb : checkboxes) {
-                if (cb.isSelected()) {
-                    selectedCount++;
+            boolean[] userSelections = new boolean[q.answers.length];
+
+            if (result == 1) { // "Nav ne jausmas"
+                List<Integer> indices = new ArrayList<>();
+                for (int i = 0; i < q.answers.length; i++) indices.add(i);
+                Collections.shuffle(indices);
+                int numToSelect = 2 + new java.util.Random().nextInt(2); // 2 or 3
+                for (int i = 0; i < numToSelect; i++) {
+                    checkboxes[indices.get(i)].setSelected(true);
                 }
             }
 
+            // Count selected answers
+            int selectedCount = 0;
+            for (JCheckBox cb : checkboxes) {
+                if (cb.isSelected()) selectedCount++;
+            }
+
             if (selectedCount >= 2) {
-                boolean[] userSelections = new boolean[q.answers.length];
-                for (int i = 0; i < q.answers.length; i++) {
+                for (int i = 0; i < checkboxes.length; i++) {
                     userSelections[i] = checkboxes[i].isSelected();
                 }
                 return userSelections;
             } else {
-                JOptionPane.showMessageDialog(null, "Lūdzu, atzīmē vismaz DIVAS atbildes!", "Nepietiek izvēļu", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Lūdzu, atzīmē vismaz 2 atbildes!", "Nepietiekami atzīmēts", JOptionPane.WARNING_MESSAGE);
             }
         }
     }
