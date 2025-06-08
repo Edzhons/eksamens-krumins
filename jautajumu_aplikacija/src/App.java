@@ -62,16 +62,58 @@ public class App {
         List<Question> questions = new ArrayList<>();
         List<QuizResult> results = new ArrayList<>();
 
-        // --- Add questions here ---
         questions.add(new Question(
-            "Kurie no šiem ir derīgi Java datu tipi? (Atzīmē visas pareizās)",
-            new String[]{"boolean", "String", "int", "float"},
+            "Kuri no šiem ir derīgi Java datu tipi? (Atzīmē visas pareizās)",
+            new String[]{"boolean", "word", "int", "long"},
             new boolean[]{true, false, true, true}
         ));
         questions.add(new Question(
-            "Kas atbilst 'boolean' tipa vērtībai?",
+            "Kādas vērtības var atbilst boolean tipam?",
             new String[]{"true", "false", "null", "0"},
             new boolean[]{true, true, false, false}
+        ));
+        questions.add(new Question(
+            "Kuri no šiem ir derīgi Java operatori?",
+            new String[]{"==", "&&", ">|", "!="},
+            new boolean[]{true, true, false, true}
+        ));
+        questions.add(new Question(
+            "Kurus no šiem datu tipiem Java izmanto skaitļu glabāšanai?",
+            new String[]{"String", "int", "short", "boolean"},
+            new boolean[]{false, true, true, false}
+        ));
+        questions.add(new Question(
+            "Kuri no šiem apgalvojumiem par String ir patiesi?",
+            new String[]{"String nav primitīvais tips", "String ir nemainīgs (immutable)", "String vienmēr jābūt null",
+            "String ir tas pats, kas char[]"},
+            new boolean[]{true, true, false, false}
+        ));
+        questions.add(new Question(
+            "Kas ir final mainīgais Java?",
+            new String[]{"To nedrīkst pārrakstīt pēc inicializācijas", "To var mainīt, ja tas ir String",
+            "Bieži tiek izmantots konstantēm", "Obligāti jāsauc ar lielajiem burtiem"},
+            new boolean[]{true, false, true, false}
+        ));
+        questions.add(new Question(
+            "Kurus no šiem var izmantot mainīgo nosaukumos Java?",
+            new String[]{"Atstarpes", "Cipari (bet ne kā pirmais simbols)", "Apakšsvītra (_)", "Burti (a-z, A-Z)"},
+            new boolean[]{false, true, true, true}
+        ));
+        questions.add(new Question(
+            "Kurā vietā var deklarēt mainīgo Java klasē?",
+            new String[]{"Klases līmenī (instance field)", "Metodes iekšienē", "Cikla iekšienē", "Tieši ārpus klases"},
+            new boolean[]{true, true, true, false}
+        ));
+        questions.add(new Question(
+            "Kas notiek, ja mainīgajam tiek piešķirts nepareizs tips?",
+            new String[]{"Java automātiski pārveido tipu", "Kompilators izmet kļūdu", "Mainīgais kļūst par null",
+            "Nepareizs tips izraisa kļūdu vēl pirms izpildes"},
+            new boolean[]{false, true, false, true}
+        ));
+        questions.add(new Question(
+            "Kuri no šiem ir Java primārie datu tipi?",
+            new String[]{"int", "String", "char", "double"},
+            new boolean[]{true, false, true, true}
         ));
 
         Collections.shuffle(questions);
@@ -85,8 +127,9 @@ public class App {
                 score++;
             }
         }
-
-        JOptionPane.showMessageDialog(null, "Spēle pabeigta! Tavs rezultāts: " + score + "/" + questions.size());
+        
+        double percentageScore = (score * 100) / questions.size();
+        JOptionPane.showMessageDialog(null, "Spēle pabeigta! Tavs rezultāts: " + score + "/" + questions.size() + " (" + percentageScore + "%)");
         showMistakes(results);
     }
 
