@@ -43,6 +43,6 @@ public class App {
     }
 
     public static void startQuiz() {
-        JOptionPane.showMessageDialog(null, "Šeit būs jautājumu spēle!", "Jautājumu Spēle", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Te būs tie jautājum");
     }
 }
