@@ -135,25 +135,42 @@ public class App {
 
     public static boolean[] askQuestion(Question q) {
         JCheckBox[] checkboxes = new JCheckBox[q.answers.length];
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.add(new JLabel("❓ " + q.questionText));
 
-        for (int i = 0; i < q.answers.length; i++) {
-            checkboxes[i] = new JCheckBox(q.answers[i]);
-            panel.add(checkboxes[i]);
-        }
+        while (true) {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.add(new JLabel("❓ " + q.questionText));
 
-        int result = JOptionPane.showConfirmDialog(null, panel, "Jautājums", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-        boolean[] userSelections = new boolean[q.answers.length];
-
-        if (result == JOptionPane.OK_OPTION) {
             for (int i = 0; i < q.answers.length; i++) {
-                userSelections[i] = checkboxes[i].isSelected();
+                checkboxes[i] = new JCheckBox(q.answers[i]);
+                panel.add(checkboxes[i]);
+            }
+
+            int result = JOptionPane.showConfirmDialog(null, panel, "Jautājums", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+            if (result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
+                // Atgriezties uz galveno izvēlni
+                showMainMenu(); // Restartē visu no sākuma
+            }
+
+            // Saskaitīt, cik atzīmētas izvēles
+            int selectedCount = 0;
+            for (JCheckBox cb : checkboxes) {
+                if (cb.isSelected()) {
+                    selectedCount++;
+                }
+            }
+
+            if (selectedCount >= 2) {
+                boolean[] userSelections = new boolean[q.answers.length];
+                for (int i = 0; i < q.answers.length; i++) {
+                    userSelections[i] = checkboxes[i].isSelected();
+                }
+                return userSelections;
+            } else {
+                JOptionPane.showMessageDialog(null, "Lūdzu, atzīmē vismaz DIVAS atbildes!", "Nepietiek izvēļu", JOptionPane.WARNING_MESSAGE);
             }
         }
-
-        return userSelections;
     }
 
     public static void showMistakes(List<QuizResult> results) {
