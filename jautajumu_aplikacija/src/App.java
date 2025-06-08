@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.swing.*;
 
 public class App {
@@ -43,6 +46,57 @@ public class App {
     }
 
     public static void startQuiz() {
-        JOptionPane.showMessageDialog(null, "Te būs tie jautājum");
+        List<Question> questions = new ArrayList<>();
+
+        questions.add(new Question(
+            "Kuri no šiem ir derīgi Java datu tipi? (Atzīmē visas pareizās)",
+            new String[]{"boolean", "String", "int", "float"},
+            new boolean[]{true, false, true, true}
+        ));
+
+        questions.add(new Question(
+            "Kas atbilst 'boolean' tipa vērtībai?",
+            new String[]{"true", "false", "null", "0"},
+            new boolean[]{true, true, false, false}
+        ));
+
+        // VĒL JAUTĀJUMI .......
+
+        Collections.shuffle(questions); // sajauc jautājumus
+
+        int score = 0;
+
+        for (Question q : questions) {
+            boolean correct = askQuestion(q);
+            if (correct) score++;
+        }
+
+        JOptionPane.showMessageDialog(null, "Spēle pabeigta! Tavs rezultāts: " + score + "/" + questions.size());
+    }
+
+    public static boolean askQuestion(Question q) {
+        JCheckBox[] checkboxes = new JCheckBox[q.answers.length];
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        panel.add(new JLabel("❓ " + q.questionText));
+
+        for (int i = 0; i < q.answers.length; i++) {
+            checkboxes[i] = new JCheckBox(q.answers[i]);
+            panel.add(checkboxes[i]);
+        }
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Jautājums", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            for (int i = 0; i < q.answers.length; i++) {
+                if (checkboxes[i].isSelected() != q.correctAnswers[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return false;
     }
 }
