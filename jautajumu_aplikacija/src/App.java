@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.*;
@@ -59,38 +60,39 @@ public class App {
 
     public static void startQuiz() {
         List<Question> questions = new ArrayList<>();
+        List<QuizResult> results = new ArrayList<>();
 
+        // --- Add questions here ---
         questions.add(new Question(
-            "Kuri no šiem ir derīgi Java datu tipi? (Atzīmē visas pareizās)",
+            "Kurie no šiem ir derīgi Java datu tipi? (Atzīmē visas pareizās)",
             new String[]{"boolean", "String", "int", "float"},
             new boolean[]{true, false, true, true}
         ));
-
         questions.add(new Question(
             "Kas atbilst 'boolean' tipa vērtībai?",
             new String[]{"true", "false", "null", "0"},
             new boolean[]{true, true, false, false}
         ));
 
-        // VĒL JAUTĀJUMI .......
-
-        Collections.shuffle(questions); // sajauc jautājumus
-
+        Collections.shuffle(questions);
         int score = 0;
 
         for (Question q : questions) {
-            boolean correct = askQuestion(q);
-            if (correct) score++;
+            boolean[] userAnswers = askQuestion(q);
+            results.add(new QuizResult(q, userAnswers));
+
+            if (Arrays.equals(userAnswers, q.correctAnswers)) {
+                score++;
+            }
         }
 
         JOptionPane.showMessageDialog(null, "Spēle pabeigta! Tavs rezultāts: " + score + "/" + questions.size());
     }
 
-    public static boolean askQuestion(Question q) {
+    public static boolean[] askQuestion(Question q) {
         JCheckBox[] checkboxes = new JCheckBox[q.answers.length];
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
         panel.add(new JLabel("❓ " + q.questionText));
 
         for (int i = 0; i < q.answers.length; i++) {
@@ -99,16 +101,15 @@ public class App {
         }
 
         int result = JOptionPane.showConfirmDialog(null, panel, "Jautājums", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        boolean[] userSelections = new boolean[q.answers.length];
 
         if (result == JOptionPane.OK_OPTION) {
             for (int i = 0; i < q.answers.length; i++) {
-                if (checkboxes[i].isSelected() != q.correctAnswers[i]) {
-                    return false;
-                }
+                userSelections[i] = checkboxes[i].isSelected();
             }
-            return true;
         }
 
-        return false;
+        return userSelections;
     }
+
 }
