@@ -1,8 +1,13 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 class Question {
     public String questionText;
@@ -76,63 +81,30 @@ public class App {
     }
 
     public static void startQuiz() {
-        // Sagatavo jautājumus un rezultātu glabāšanu
-        List<Question> questions = new ArrayList<>();
+        // Sagatavo rezultātu glabāšanu
         List<QuizResult> results = new ArrayList<>();
+        List<Question> questions = new ArrayList<>();
 
-        questions.add(new Question(
-            "Kuri no šiem ir derīgi Java datu tipi? (Atzīmē visas pareizās)",
-            new String[]{"boolean", "word", "int", "long"},
-            new boolean[]{true, false, true, true}
-        ));
-        questions.add(new Question(
-            "Kādas vērtības var atbilst boolean tipam?",
-            new String[]{"true", "false", "null", "0"},
-            new boolean[]{true, true, false, false}
-        ));
-        questions.add(new Question(
-            "Kuri no šiem ir derīgi Java operatori?",
-            new String[]{"==", "&&", ">|", "!="},
-            new boolean[]{true, true, false, true}
-        ));
-        questions.add(new Question(
-            "Kurus no šiem datu tipiem Java izmanto skaitļu glabāšanai?",
-            new String[]{"String", "int", "short", "boolean"},
-            new boolean[]{false, true, true, false}
-        ));
-        questions.add(new Question(
-            "Kuri no šiem apgalvojumiem par String ir patiesi?",
-            new String[]{"String nav primitīvais tips", "String ir nemainīgs (immutable)", "String vienmēr jābūt null",
-            "String ir tas pats, kas char[]"},
-            new boolean[]{true, true, false, false}
-        ));
-        questions.add(new Question(
-            "Kas ir final mainīgais Java?",
-            new String[]{"To nedrīkst pārrakstīt pēc inicializācijas", "To var mainīt, ja tas ir String",
-            "Bieži tiek izmantots konstantēm", "Obligāti jāsauc ar lielajiem burtiem"},
-            new boolean[]{true, false, true, false}
-        ));
-        questions.add(new Question(
-            "Kurus no šiem var izmantot mainīgo nosaukumos Java?",
-            new String[]{"Atstarpes", "Cipari (bet ne kā pirmais simbols)", "Apakšsvītra (_)", "Burti (a-z, A-Z)"},
-            new boolean[]{false, true, true, true}
-        ));
-        questions.add(new Question(
-            "Kurā vietā var deklarēt mainīgo Java klasē?",
-            new String[]{"Klases līmenī (instance field)", "Metodes iekšienē", "Cikla iekšienē", "Tieši ārpus klases"},
-            new boolean[]{true, true, true, false}
-        ));
-        questions.add(new Question(
-            "Kas notiek, ja mainīgajam tiek piešķirts nepareizs tips?",
-            new String[]{"Java automātiski pārveido tipu", "Kompilators izmet kļūdu", "Mainīgais kļūst par null",
-            "Nepareizs tips izraisa kļūdu vēl pirms izpildes"},
-            new boolean[]{false, true, false, true}
-        ));
-        questions.add(new Question(
-            "Kuri no šiem ir Java primārie datu tipi?",
-            new String[]{"int", "String", "char", "double"},
-            new boolean[]{true, false, true, true}
-        ));
+        String[] options = {"Ielādēt jautājumus", "Turpināt ar noklusējuma jautājumiem"};
+        int readFromText = JOptionPane.showOptionDialog(
+                null,
+                "Vai vēlies ielādēt jautājumus no faila?\nCitādi tiks izmantoti noklusējuma jautājumi.",
+                "Jautājumu ielāde",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+
+        if (readFromText == JOptionPane.YES_OPTION) {
+            questions = loadQuestionsFromFile(); // Ielādē jautājumus no faila, ja lietotājs izvēlas to darīt
+        }
+        
+        if (questions == null || questions.isEmpty()) {
+            // Ja lietotājs atcēla vai notika kļūda, izmantot hardcoded jautājumus
+            questions = getDefaultQuestions();
+        }
 
         Collections.shuffle(questions); // Lai katru reizi jautājumi būtu citā secībā
         int score = 0;
@@ -314,5 +286,133 @@ public class App {
         int seconds = totalSeconds % 60;
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
+
+    public static List<Question> loadQuestionsFromFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Izvēlies jautājumu failu");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Teksta faili (*.txt)", "txt"));
+
+        int result = fileChooser.showOpenDialog(null);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            JOptionPane.showMessageDialog(null, "Faila ielāde atcelta. Tiek izmantoti noklusētie jautājumi.");
+            return null;
+        }
+
+        File file = fileChooser.getSelectedFile();
+        List<Question> questions = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            String questionText = null;
+            List<String> answers = new ArrayList<>();
+            List<Boolean> correct = new ArrayList<>();
+
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) {
+                    if (questionText != null && !answers.isEmpty()) {
+                        questions.add(new Question(
+                            questionText,
+                            answers.toArray(new String[0]),
+                            toBooleanArray(correct)
+                        ));
+                        questionText = null;
+                        answers.clear();
+                        correct.clear();
+                    }
+                    continue;
+                }
+
+                if (line.startsWith("Q:")) {
+                    questionText = line.substring(2).trim();
+                } else if (line.startsWith("A:")) {
+                    String[] parts = line.substring(2).split("\\|");
+                    if (parts.length != 2) continue;
+                    answers.add(parts[0].trim());
+                    correct.add(Boolean.parseBoolean(parts[1].trim()));
+                }
+            }
+
+            // Last question (if no empty line at the end)
+            if (questionText != null && !answers.isEmpty()) {
+                questions.add(new Question(
+                    questionText,
+                    answers.toArray(new String[0]),
+                    toBooleanArray(correct)
+                ));
+            }
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Kļūda lasot failu: " + e.getMessage());
+            return null;
+        }
+
+        return questions;
+    }
+
+    private static boolean[] toBooleanArray(List<Boolean> list) {
+        boolean[] arr = new boolean[list.size()];
+        for (int i = 0; i < list.size(); i++) arr[i] = list.get(i);
+        return arr;
+    }
+
+    public static List<Question> getDefaultQuestions() {
+    List<Question> questions = new ArrayList<>();
+    questions.add(new Question(
+            "Kuri no šiem ir derīgi Java datu tipi? (Atzīmē visas pareizās)",
+            new String[]{"boolean", "word", "int", "long"},
+            new boolean[]{true, false, true, true}
+        ));
+        questions.add(new Question(
+            "Kādas vērtības var atbilst boolean tipam?",
+            new String[]{"true", "false", "null", "0"},
+            new boolean[]{true, true, false, false}
+        ));
+        questions.add(new Question(
+            "Kuri no šiem ir derīgi Java operatori?",
+            new String[]{"==", "&&", ">|", "!="},
+            new boolean[]{true, true, false, true}
+        ));
+        questions.add(new Question(
+            "Kurus no šiem datu tipiem Java izmanto skaitļu glabāšanai?",
+            new String[]{"String", "int", "short", "boolean"},
+            new boolean[]{false, true, true, false}
+        ));
+        questions.add(new Question(
+            "Kuri no šiem apgalvojumiem par String ir patiesi?",
+            new String[]{"String nav primitīvais tips", "String ir nemainīgs (immutable)", "String vienmēr jābūt null",
+            "String ir tas pats, kas char[]"},
+            new boolean[]{true, true, false, false}
+        ));
+        questions.add(new Question(
+            "Kas ir final mainīgais Java?",
+            new String[]{"To nedrīkst pārrakstīt pēc inicializācijas", "To var mainīt, ja tas ir String",
+            "Bieži tiek izmantots konstantēm", "Obligāti jāsauc ar lielajiem burtiem"},
+            new boolean[]{true, false, true, false}
+        ));
+        questions.add(new Question(
+            "Kurus no šiem var izmantot mainīgo nosaukumos Java?",
+            new String[]{"Atstarpes", "Cipari (bet ne kā pirmais simbols)", "Apakšsvītra (_)", "Burti (a-z, A-Z)"},
+            new boolean[]{false, true, true, true}
+        ));
+        questions.add(new Question(
+            "Kurā vietā var deklarēt mainīgo Java klasē?",
+            new String[]{"Klases līmenī (instance field)", "Metodes iekšienē", "Cikla iekšienē", "Tieši ārpus klases"},
+            new boolean[]{true, true, true, false}
+        ));
+        questions.add(new Question(
+            "Kas notiek, ja mainīgajam tiek piešķirts nepareizs tips?",
+            new String[]{"Java automātiski pārveido tipu", "Kompilators izmet kļūdu", "Mainīgais kļūst par null",
+            "Nepareizs tips izraisa kļūdu vēl pirms izpildes"},
+            new boolean[]{false, true, false, true}
+        ));
+        questions.add(new Question(
+            "Kuri no šiem ir Java primārie datu tipi?",
+            new String[]{"int", "String", "char", "double"},
+            new boolean[]{true, false, true, true}
+        ));
+
+    return questions;
+}
 
 }
