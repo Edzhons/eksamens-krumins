@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -86,6 +88,7 @@ public class App {
         // Sagatavo rezultātu glabāšanu
         List<QuizResult> results = new ArrayList<>();
         List<Question> questions = new ArrayList<>();
+        ImageIcon icon = new ImageIcon(App.class.getResource("/img/questionMark.png"));
 
         String[] options = {"Ielādēt jautājumus", "Turpināt ar noklusējuma jautājumiem"};
         int readFromText = JOptionPane.showOptionDialog(
@@ -94,7 +97,7 @@ public class App {
                 "Jautājumu ielāde",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
-                null,
+                icon,
                 options,
                 options[0]
         );
@@ -147,6 +150,7 @@ public class App {
     }
 
     public static boolean[] askQuestion(Question q, int questionNumber, int totalQuestions){
+        Random random = new Random();
         JCheckBox[] checkboxes = new JCheckBox[q.answers.length];
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -159,9 +163,19 @@ public class App {
         panel.add(new JLabel("📊 Jautājums " + questionNumber + " no " + totalQuestions));
 
         String[] options = {"Iesniegt", "Nav ne jausmas", "Atcelt"};
-        ImageIcon icon = new ImageIcon(App.class.getResource("/img/question.png"));
         ImageIcon warning = new ImageIcon(App.class.getResource("/img/warning1.png"));
         int warningCount = 0; // Skaits, cik reizes lietotājs ir spiedis "Iesniegt" bez atzīmētām atbildēm
+
+        String[] iconPaths = {
+            "/img/question1.png",
+            "/img/question2.png",
+            "/img/question3.png",
+            "/img/question4.png",
+            "/img/question5.png"
+        };
+
+        int randomIndex = random.nextInt(iconPaths.length); // 0–4
+        ImageIcon randomIcon = new ImageIcon(App.class.getResource(iconPaths[randomIndex]));
 
         while (true) {
             int result = JOptionPane.showOptionDialog(
@@ -170,7 +184,7 @@ public class App {
                 "Jautājums",
                 JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
-                icon,
+                randomIcon,
                 options,
                 options[0]
             );
