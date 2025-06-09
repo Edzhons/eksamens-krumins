@@ -187,9 +187,7 @@ public class App {
         String[] options = {"Iesniegt", "Nav ne jausmas", "Atcelt"};
         ImageIcon icon = new ImageIcon(App.class.getResource("/img/question.png"));
         ImageIcon warning = new ImageIcon(App.class.getResource("/img/warning1.png"));
-        ImageIcon laughIcon = new ImageIcon(App.class.getResource("/img/warning1.png"));
         int warningCount = 0; // Skaits, cik reizes lietotājs ir spiedis "Iesniegt" bez atzīmētām atbildēm
-        int idkCount = 0; // Skaits, cik reizes lietotājs ir spiedis "Nav ne jausmas"
 
         while (true) {
             int result = JOptionPane.showOptionDialog(
@@ -208,9 +206,7 @@ public class App {
             }
 
             boolean[] userSelections = new boolean[q.answers.length];
-            boolean idkSelected = false;
             if (result == 1) {
-                idkSelected = true;
                 // "Nav ne jausmas" poga – izvēlas 2–3 random atbildes
                 List<Integer> indices = new ArrayList<>();
                 for (int i = 0; i < q.answers.length; i++) indices.add(i);
@@ -245,24 +241,14 @@ public class App {
             }
             
             // Atļauj turpināt tikai tad, ja izvēlētas vismaz 2 atbildes
-            if (selectedCount >= 2) {
+            if (selectedCount >= 2 && selectedCount <= 3) {
                 for (int i = 0; i < checkboxes.length; i++) {
                     userSelections[i] = checkboxes[i].isSelected();
                 }
                 warningCount = 0;
-
-                // Ja spiež idk, tad pieskaita klāt idkCount un, ja idkCount ir 3 vai vairāk, tad parēc par lietotāju
-                System.out.println(idkSelected + " " + idkCount);
-                if (idkSelected){
-                    idkCount++;
-                }
-                if (idkCount >= 3) {
-                    JOptionPane.showMessageDialog(null, "Nopietni, tu vispār kaut ko zini? ;D", "Cik var spiest <Nav ne jausmas> ;DDD", JOptionPane.WARNING_MESSAGE, laughIcon);
-                }
-
                 return userSelections;
             } else {
-                JOptionPane.showMessageDialog(null, "Lūdzu, atzīmē vismaz 2 atbildes!", "VISMAZ 2 VAI 3, cmon", JOptionPane.WARNING_MESSAGE, warning);
+                JOptionPane.showMessageDialog(null, "Lūdzu, atzīmē tikai 2-3 atbildes!", "VISMAZ 2 VAI 3, cmon", JOptionPane.WARNING_MESSAGE, warning);
                 warningCount++;
             }
         }
