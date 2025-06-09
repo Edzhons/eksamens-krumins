@@ -1,7 +1,9 @@
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -288,20 +290,22 @@ public class App {
     }
 
     public static List<Question> loadQuestionsFromFile() {
-        JFileChooser fileChooser = new JFileChooser();
+        // Atver failu izvēlni, lai ielādētu jautājumus no teksta faila - to dara attiecīgi vietā, no kuras ir atvērta aplikācija
+        JFileChooser fileChooser = new JFileChooser(new File(System.getProperty("user.dir")));
         fileChooser.setDialogTitle("Izvēlies jautājumu failu");
         fileChooser.setFileFilter(new FileNameExtensionFilter("Teksta faili (*.txt)", "txt"));
 
         int result = fileChooser.showOpenDialog(null);
         if (result != JFileChooser.APPROVE_OPTION) {
-            JOptionPane.showMessageDialog(null, "Faila ielāde atcelta. Tiek izmantoti noklusētie jautājumi.");
+            JOptionPane.showMessageDialog(null, "Faila ielāde atcelta. Tiek izmantoti noklusējuma jautājumi.");
             return null;
         }
 
         File file = fileChooser.getSelectedFile();
         List<Question> questions = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        // UTF-8, priekš latviešu valodas garumzīmēm
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             String line;
             String questionText = null;
             List<String> answers = new ArrayList<>();
@@ -333,7 +337,7 @@ public class App {
                 }
             }
 
-            // Last question (if no empty line at the end)
+            // Pēdējais jautājums, ja faila beigās nav tukšas rindas
             if (questionText != null && !answers.isEmpty()) {
                 questions.add(new Question(
                     questionText,
@@ -359,7 +363,7 @@ public class App {
     public static List<Question> getDefaultQuestions() {
     List<Question> questions = new ArrayList<>();
     questions.add(new Question(
-            "Kuri no šiem ir derīgi Java datu tipi? (Atzīmē visas pareizās)",
+            "Kuri no šiem ir derīgi Java datu tipi?",
             new String[]{"boolean", "word", "int", "long"},
             new boolean[]{true, false, true, true}
         ));
@@ -370,7 +374,7 @@ public class App {
         ));
         questions.add(new Question(
             "Kuri no šiem ir derīgi Java operatori?",
-            new String[]{"==", "&&", ">|", "!="},
+            new String[]{"==", "&&", ">>", "!="},
             new boolean[]{true, true, false, true}
         ));
         questions.add(new Question(

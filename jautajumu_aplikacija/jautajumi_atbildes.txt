@@ -1,0 +1,59 @@
+Q:Kuri no šiem ir derīgi Java datu tipi?
+A:boolean|true
+A:word|false
+A:int|true
+A:long|true
+
+Q:Kādas vērtības var atbilst boolean tipam?
+A:true|true
+A:false|true
+A:null|false
+A:0|false
+
+Q:Kuri no šiem ir derīgi Java operatori?
+A:==|true
+A:&&|true
+A:>>|false
+A:!=|true
+
+Q:Kurus no šiem datu tipiem Java izmanto skaitļu glabāšanai?
+A:String|false
+A:int|true
+A:short|true
+A:boolean|false
+
+Q:Kuri no šiem apgalvojumiem par String ir patiesi?
+A:String nav primitīvais tips|true
+A:String ir nemainīgs (immutable)|true
+A:String vienmēr jābūt null|false
+A:String ir tas pats, kas char[]|false
+
+Q:Kas ir final mainīgais Java?
+A:To nedrīkst pārrakstīt pēc inicializācijas|true
+A:To var mainīt, ja tas ir String|false
+A:Bieži tiek izmantots konstantēm|true
+A:Obligāti jāsauc ar lielajiem burtiem|false
+
+Q:Kurus no šiem var izmantot mainīgo nosaukumos Java?
+A:Atstarpes|false
+A:Cipari (bet ne kā pirmais simbols)|true
+A:Apakšsvītra (_)|true
+A:Burti (a-z, A-Z)|true
+
+Q:Kurā vietā var deklarēt mainīgo Java klasē?
+A:Klases līmenī (instance field)|true
+A:Metodes iekšienē|true
+A:Cikla iekšienē|true
+A:Tieši ārpus klases|false
+
+Q:Kas notiek, ja mainīgajam tiek piešķirts nepareizs tips?
+A:Java automātiski pārveido tipu|false
+A:Kompilators izmet kļūdu|true
+A:Mainīgais kļūst par null|false
+A:Nepareizs tips izraisa kļūdu vēl pirms izpildes|true
+
+Q:Kuri no šiem ir Java primārie datu tipi?
+A:int|true
+A:String|false
+A:char|true
+A:double|true
