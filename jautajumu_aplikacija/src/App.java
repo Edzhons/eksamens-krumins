@@ -149,6 +149,7 @@ public class App {
         }
     }
 
+    private static int lastIconIndex = -1; // Priekš tā, lai ikonas neatkārtotos (inicializē ar -1)
     public static boolean[] askQuestion(Question q, int questionNumber, int totalQuestions){
         Random random = new Random();
         JCheckBox[] checkboxes = new JCheckBox[q.answers.length];
@@ -174,7 +175,16 @@ public class App {
             "/img/question5.png"
         };
 
-        int randomIndex = random.nextInt(iconPaths.length); // 0–4
+        int randomIndex;
+
+        // Atkārto, kamēr jaunā ikona nav tāda pati, kā iepriekšējā
+        do {
+            randomIndex = random.nextInt(iconPaths.length);
+        } while (randomIndex == lastIconIndex);
+
+        lastIconIndex = randomIndex;
+
+        // Load the icon
         ImageIcon randomIcon = new ImageIcon(App.class.getResource(iconPaths[randomIndex]));
 
         while (true) {
