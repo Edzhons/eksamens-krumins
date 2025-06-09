@@ -196,19 +196,30 @@ public class App {
             );
 
             if (result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
-                return null;  // Cancel => return to main menu
+                return null;  // Cancel - atgriežas uz main menu
             }
 
             boolean[] userSelections = new boolean[q.answers.length];
 
-            if (result == 1) { // Ja izvēlas "Nav ne jausmas", izvēlas 2–3 atbildes randomā
+            if (result == 1) {
+                // "Nav ne jausmas" poga – izvēlas 2–3 random atbildes
                 List<Integer> indices = new ArrayList<>();
                 for (int i = 0; i < q.answers.length; i++) indices.add(i);
                 Collections.shuffle(indices);
                 int numToSelect = 2 + new java.util.Random().nextInt(2); // 2 vai 3
+                
+                // Notīra iepriekš atzīmētos checkboxus
+                for (JCheckBox cb : checkboxes) {
+                    cb.setSelected(false);
+                }
+
+                // Atzīmē 2–3 random checkboxus
                 for (int i = 0; i < numToSelect; i++) {
                     checkboxes[indices.get(i)].setSelected(true);
                 }
+
+                // Paliek šajā pašā logā – ļauj lietotājam pārbaudīt un uzspiest "OK", nevis submittot uzreiz
+                continue;
             }
 
             // Saskaita, cik atbildes ir atzīmētas
