@@ -36,6 +36,7 @@ public class App {
 
     public static void showMainMenu() {
         String[] options = {"Sākt jautājumu spēli", "INFO", "Iziet"};
+        ImageIcon icon = new ImageIcon(App.class.getResource("/img/logo.png"));
 
         while (true) {
             int choice = JOptionPane.showOptionDialog(
@@ -44,7 +45,7 @@ public class App {
                 "Jautājumu Spēle",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.INFORMATION_MESSAGE,
-                null,
+                icon,
                 options,
                 options[0]
             );
@@ -61,6 +62,8 @@ public class App {
     }
 
     public static void showInfo() {
+        ImageIcon icon = new ImageIcon(App.class.getResource("/img/info.png"));
+
         String info = "📜 INFO:\n"
                      + "1. Tests sastāv no 10 jautājumiem.\n"
                      + "2. Katram jautājumam ir 4 atbilžu varianti, no kuriem pareizi ir 2-3.\n"
@@ -69,7 +72,7 @@ public class App {
                      + "5. Spēles beigās tiks parādīts rezultāts un atbildes uz nepareizi atbildētajiem jautājumiem.\n"
                      + "6. Jautājumi, pildot testu, katru reizi tiek parādīti citā secībā.\n"
                      + "7. Spiežot uz pogas <Nav ne jausmas>, programma automātiski izvēlēsies 2-3 atbildes, randomā.\n";
-        JOptionPane.showMessageDialog(null, info, "Par spēli", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, info, "Par spēli", JOptionPane.INFORMATION_MESSAGE, icon);
     }
 
     public static void startQuiz() {
@@ -181,7 +184,12 @@ public class App {
         }
         panel.add(new JLabel("📊 Jautājums " + questionNumber + " no " + totalQuestions));
 
-        String[] options = {"OK", "Nav ne jausmas", "Atcelt"};
+        String[] options = {"Iesniegt", "Nav ne jausmas", "Atcelt"};
+        ImageIcon icon = new ImageIcon(App.class.getResource("/img/question.png"));
+        ImageIcon warning = new ImageIcon(App.class.getResource("/img/warning1.png"));
+        ImageIcon laughIcon = new ImageIcon(App.class.getResource("/img/warning1.png"));
+        int warningCount = 0; // Skaits, cik reizes lietotājs ir spiedis "Iesniegt" bez atzīmētām atbildēm
+        int idkCount = 0; // Skaits, cik reizes lietotājs ir spiedis "Nav ne jausmas"
 
         while (true) {
             int result = JOptionPane.showOptionDialog(
@@ -190,7 +198,7 @@ public class App {
                 "Jautājums",
                 JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
-                null,
+                icon,
                 options,
                 options[0]
             );
@@ -200,8 +208,9 @@ public class App {
             }
 
             boolean[] userSelections = new boolean[q.answers.length];
-
+            boolean idkSelected = false;
             if (result == 1) {
+                idkSelected = true;
                 // "Nav ne jausmas" poga – izvēlas 2–3 random atbildes
                 List<Integer> indices = new ArrayList<>();
                 for (int i = 0; i < q.answers.length; i++) indices.add(i);
@@ -228,14 +237,33 @@ public class App {
                 if (cb.isSelected()) selectedCount++;
             }
 
+            // Prikolam, ikoniņas mainās, atkarībā no tā, cik reizes brīdinājums ir parādījies
+            if (warningCount == 1){
+                warning = new ImageIcon(App.class.getResource("/img/warning2.png"));
+            }else if (warningCount >= 2) {
+                warning = new ImageIcon(App.class.getResource("/img/warning3.png"));
+            }
+            
             // Atļauj turpināt tikai tad, ja izvēlētas vismaz 2 atbildes
             if (selectedCount >= 2) {
                 for (int i = 0; i < checkboxes.length; i++) {
                     userSelections[i] = checkboxes[i].isSelected();
                 }
+                warningCount = 0;
+
+                // Ja spiež idk, tad pieskaita klāt idkCount un, ja idkCount ir 3 vai vairāk, tad parēc par lietotāju
+                System.out.println(idkSelected + " " + idkCount);
+                if (idkSelected){
+                    idkCount++;
+                }
+                if (idkCount >= 3) {
+                    JOptionPane.showMessageDialog(null, "Nopietni, tu vispār kaut ko zini? ;D", "Cik var spiest <Nav ne jausmas> ;DDD", JOptionPane.WARNING_MESSAGE, laughIcon);
+                }
+
                 return userSelections;
             } else {
-                JOptionPane.showMessageDialog(null, "Lūdzu, atzīmē vismaz 2 atbildes!", "Nepietiekami atzīmēts", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Lūdzu, atzīmē vismaz 2 atbildes!", "VISMAZ 2 VAI 3, cmon", JOptionPane.WARNING_MESSAGE, warning);
+                warningCount++;
             }
         }
     }
