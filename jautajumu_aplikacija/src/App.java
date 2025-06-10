@@ -148,25 +148,118 @@ public class App {
             showMainMenu();  // Atgriežas uz main menu
         }
     }
+    
+    // private static int lastIconIndex = -1; // Priekš tā, lai ikonas neatkārtotos (inicializē ar -1)
+    // public static boolean[] askQuestion(Question q, int questionNumber, int totalQuestions){
+    //     Random random = new Random();
+    //     JCheckBox[] checkboxes = new JCheckBox[q.answers.length];
+    //     JPanel panel = new JPanel();
+    //     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    //     panel.add(new JLabel("❓ " + q.questionText));
 
-    private static int lastIconIndex = -1; // Priekš tā, lai ikonas neatkārtotos (inicializē ar -1)
-    public static boolean[] askQuestion(Question q, int questionNumber, int totalQuestions){
+    //     for (int i = 0; i < q.answers.length; i++) {
+    //         checkboxes[i] = new JCheckBox(q.answers[i]);
+    //         panel.add(checkboxes[i]);
+    //     }
+    //     panel.add(new JLabel("📊 Jautājums " + questionNumber + " no " + totalQuestions));
+
+    //     String[] options = {"Iesniegt", "Nav ne jausmas", "Atcelt"};
+    //     ImageIcon warning = new ImageIcon(App.class.getResource("/img/warning1.png"));
+    //     int warningCount = 0; // Skaits, cik reizes lietotājs ir spiedis "Iesniegt" bez atzīmētām atbildēm
+
+    //     String[] iconPaths = {
+    //         "/img/question1.png",
+    //         "/img/question2.png",
+    //         "/img/question3.png",
+    //         "/img/question4.png",
+    //         "/img/question5.png"
+    //     };
+
+    //     int randomIndex;
+
+    //     // Atkārto, kamēr jaunā ikona nav tāda pati, kā iepriekšējā
+    //     do {
+    //         randomIndex = random.nextInt(iconPaths.length);
+    //     } while (randomIndex == lastIconIndex);
+
+    //     lastIconIndex = randomIndex;
+
+    //     // Load the icon
+    //     ImageIcon randomIcon = new ImageIcon(App.class.getResource(iconPaths[randomIndex]));
+
+    //     while (true) {
+    //         int result = JOptionPane.showOptionDialog(
+    //             null,
+    //             panel,
+    //             "Jautājums",
+    //             JOptionPane.YES_NO_CANCEL_OPTION,
+    //             JOptionPane.QUESTION_MESSAGE,
+    //             randomIcon,
+    //             options,
+    //             options[0]
+    //         );
+
+    //         if (result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
+    //             return null;  // Cancel - atgriežas uz main menu
+    //         }
+
+    //         boolean[] userSelections = new boolean[q.answers.length];
+    //         if (result == 1) {
+    //             // "Nav ne jausmas" poga – izvēlas 2–3 random atbildes
+    //             List<Integer> indices = new ArrayList<>();
+    //             for (int i = 0; i < q.answers.length; i++) indices.add(i);
+    //             Collections.shuffle(indices);
+    //             int numToSelect = 2 + new java.util.Random().nextInt(2); // 2 vai 3
+                
+    //             // Notīra iepriekš atzīmētos checkboxus
+    //             for (JCheckBox cb : checkboxes) {
+    //                 cb.setSelected(false);
+    //             }
+
+    //             // Atzīmē 2–3 random checkboxus
+    //             for (int i = 0; i < numToSelect; i++) {
+    //                 checkboxes[indices.get(i)].setSelected(true);
+    //             }
+
+    //             // Paliek šajā pašā logā – ļauj lietotājam pārbaudīt un uzspiest "OK", nevis submittot uzreiz
+    //             continue;
+    //         }
+
+    //         // Saskaita, cik atbildes ir atzīmētas
+    //         int selectedCount = 0;
+    //         for (JCheckBox cb : checkboxes) {
+    //             if (cb.isSelected()) selectedCount++;
+    //         }
+
+    //         // Prikolam, ikoniņas mainās, atkarībā no tā, cik reizes brīdinājums ir parādījies
+    //         if (warningCount == 1){
+    //             warning = new ImageIcon(App.class.getResource("/img/warning2.png"));
+    //         }else if (warningCount >= 2) {
+    //             warning = new ImageIcon(App.class.getResource("/img/warning3.png"));
+    //         }
+            
+    //         // Atļauj turpināt tikai tad, ja izvēlētas vismaz 2 atbildes
+    //         if (selectedCount >= 2 && selectedCount <= 3) {
+    //             for (int i = 0; i < checkboxes.length; i++) {
+    //                 userSelections[i] = checkboxes[i].isSelected();
+    //             }
+    //             warningCount = 0;
+    //             return userSelections;
+    //         } else {
+    //             JOptionPane.showMessageDialog(null, "Lūdzu, atzīmē tikai 2-3 atbildes!", "VISMAZ 2 VAI 3, cmon", JOptionPane.WARNING_MESSAGE, warning);
+    //             warningCount++;
+    //         }
+    //     }
+    // }
+
+    private static int lastIconIndex = -1;
+    
+    public static boolean[] askQuestion(Question q, int questionNumber, int totalQuestions) {
+        final boolean[] userSelections = new boolean[q.answers.length];
+        final JCheckBox[] checkboxes = new JCheckBox[q.answers.length];
+        int warningCount = 0;
+
         Random random = new Random();
-        JCheckBox[] checkboxes = new JCheckBox[q.answers.length];
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.add(new JLabel("❓ " + q.questionText));
-
-        for (int i = 0; i < q.answers.length; i++) {
-            checkboxes[i] = new JCheckBox(q.answers[i]);
-            panel.add(checkboxes[i]);
-        }
-        panel.add(new JLabel("📊 Jautājums " + questionNumber + " no " + totalQuestions));
-
-        String[] options = {"Iesniegt", "Nav ne jausmas", "Atcelt"};
-        ImageIcon warning = new ImageIcon(App.class.getResource("/img/warning1.png"));
-        int warningCount = 0; // Skaits, cik reizes lietotājs ir spiedis "Iesniegt" bez atzīmētām atbildēm
-
         String[] iconPaths = {
             "/img/question1.png",
             "/img/question2.png",
@@ -175,17 +268,41 @@ public class App {
             "/img/question5.png"
         };
 
+        // Izvēlas nejaušu, bet neatkārtotu ikonu
         int randomIndex;
-
-        // Atkārto, kamēr jaunā ikona nav tāda pati, kā iepriekšējā
         do {
             randomIndex = random.nextInt(iconPaths.length);
         } while (randomIndex == lastIconIndex);
-
         lastIconIndex = randomIndex;
-
-        // Load the icon
         ImageIcon randomIcon = new ImageIcon(App.class.getResource(iconPaths[randomIndex]));
+
+        // Panelis ar jautājumu, checkboxiem un info
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel("❓ " + q.questionText));
+
+        for (int i = 0; i < q.answers.length; i++) {
+            checkboxes[i] = new JCheckBox(q.answers[i]);
+            panel.add(checkboxes[i]);
+        }
+
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(new JLabel("📊 Jautājums " + questionNumber + " no " + totalQuestions));
+
+        JLabel timerLabel = new JLabel("⏱️ Laiks: 0s");
+        panel.add(timerLabel);
+
+        // Timer setup
+        final long[] startTime = {System.currentTimeMillis()};
+        Timer timer = new Timer(1000, e -> {
+            long now = System.currentTimeMillis();
+            long elapsed = (now - startTime[0]) / 1000;
+            timerLabel.setText("⏱️ Laiks: " + elapsed + "s");
+        });
+        timer.start();
+
+        String[] options = {"Iesniegt", "Nav ne jausmas", "Atcelt"};
+        ImageIcon warning = new ImageIcon(App.class.getResource("/img/warning1.png"));
 
         while (true) {
             int result = JOptionPane.showOptionDialog(
@@ -200,54 +317,40 @@ public class App {
             );
 
             if (result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
-                return null;  // Cancel - atgriežas uz main menu
+                timer.stop();
+                return null;
             }
 
-            boolean[] userSelections = new boolean[q.answers.length];
-            if (result == 1) {
-                // "Nav ne jausmas" poga – izvēlas 2–3 random atbildes
+            if (result == 1) { // "Nav ne jausmas"
                 List<Integer> indices = new ArrayList<>();
                 for (int i = 0; i < q.answers.length; i++) indices.add(i);
                 Collections.shuffle(indices);
-                int numToSelect = 2 + new java.util.Random().nextInt(2); // 2 vai 3
-                
-                // Notīra iepriekš atzīmētos checkboxus
-                for (JCheckBox cb : checkboxes) {
-                    cb.setSelected(false);
-                }
+                int numToSelect = 2 + random.nextInt(2); // 2 vai 3
 
-                // Atzīmē 2–3 random checkboxus
-                for (int i = 0; i < numToSelect; i++) {
-                    checkboxes[indices.get(i)].setSelected(true);
-                }
-
-                // Paliek šajā pašā logā – ļauj lietotājam pārbaudīt un uzspiest "OK", nevis submittot uzreiz
-                continue;
+                for (JCheckBox cb : checkboxes) cb.setSelected(false);
+                for (int i = 0; i < numToSelect; i++) checkboxes[indices.get(i)].setSelected(true);
+                continue; // Paliek logā
             }
 
-            // Saskaita, cik atbildes ir atzīmētas
+            // Ja lietotājs iesniedz atbildi
             int selectedCount = 0;
-            for (JCheckBox cb : checkboxes) {
-                if (cb.isSelected()) selectedCount++;
+            for (int i = 0; i < checkboxes.length; i++) {
+                userSelections[i] = checkboxes[i].isSelected();
+                if (userSelections[i]) selectedCount++;
             }
 
-            // Prikolam, ikoniņas mainās, atkarībā no tā, cik reizes brīdinājums ir parādījies
-            if (warningCount == 1){
-                warning = new ImageIcon(App.class.getResource("/img/warning2.png"));
-            }else if (warningCount >= 2) {
-                warning = new ImageIcon(App.class.getResource("/img/warning3.png"));
-            }
-            
-            // Atļauj turpināt tikai tad, ja izvēlētas vismaz 2 atbildes
             if (selectedCount >= 2 && selectedCount <= 3) {
-                for (int i = 0; i < checkboxes.length; i++) {
-                    userSelections[i] = checkboxes[i].isSelected();
-                }
-                warningCount = 0;
+                timer.stop();
                 return userSelections;
             } else {
-                JOptionPane.showMessageDialog(null, "Lūdzu, atzīmē tikai 2-3 atbildes!", "VISMAZ 2 VAI 3, cmon", JOptionPane.WARNING_MESSAGE, warning);
                 warningCount++;
+                if (warningCount == 1) {
+                    warning = new ImageIcon(App.class.getResource("/img/warning2.png"));
+                } else if (warningCount >= 2) {
+                    warning = new ImageIcon(App.class.getResource("/img/warning3.png"));
+                }
+
+                JOptionPane.showMessageDialog(null, "Lūdzu, atzīmē tikai 2-3 atbildes!", "❗ Nepietiekamas atbildes", JOptionPane.WARNING_MESSAGE, warning);
             }
         }
     }
