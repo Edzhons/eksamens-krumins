@@ -117,9 +117,9 @@ public class App {
         Collections.shuffle(questions); // Lai katru reizi jautājumi būtu citā secībā
         int score = 0;
 
-        long startTime = System.currentTimeMillis(); 
         testStartTime = System.currentTimeMillis(); // Saglabā sākuma laiku, lai vēlāk varētu aprēķināt, cik ilgi tika spēlēts
 
+        // Izveido timeri, kas updeito laiku ik sekundi
         timerLabel = new JLabel("⏱️ Laiks: 0s");
         globalTimer = new Timer(1000, e -> {
             long elapsed = (System.currentTimeMillis() - testStartTime) / 1000;
@@ -145,7 +145,7 @@ public class App {
         globalTimer.stop();
         
         long endTime = System.currentTimeMillis(); // Laiks, kad beidz atbildēt uz jautājumiem
-        double totalTimeSeconds = (endTime - startTime) / 1000.0;
+        double totalTimeSeconds = (endTime - testStartTime) / 1000.0;
         int roundedSeconds = (int) Math.round(totalTimeSeconds);
         String formattedTime = formatTime(roundedSeconds);
 
@@ -240,12 +240,12 @@ public class App {
                 }
                 return userSelections;
             } else {
-                warningCount++;
                 if (warningCount == 1) {
                     warning = new ImageIcon(App.class.getResource("/img/warning2.png"));
                 } else if (warningCount >= 2) {
                     warning = new ImageIcon(App.class.getResource("/img/warning3.png"));
                 }
+                warningCount++;
 
                 JOptionPane.showMessageDialog(null, "Lūdzu, atzīmē tikai 2-3 atbildes!", "VISMAZ 2 VAI 3, cmon", JOptionPane.WARNING_MESSAGE, warning);
             }
